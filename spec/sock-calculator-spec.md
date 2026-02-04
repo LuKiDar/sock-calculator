@@ -2,14 +2,14 @@
 
 ## Scope
 - Single calculator covering multiple heel types and both knitting directions.
-- Sizing mode: standard EU sizes 34–46 only.
+- Sizing mode: standard EU sizes 34–48 only.
 - Outputs are numeric stitch and row counts plus section ordering.
 
 ## Inputs and Defaults
 Required inputs:
 - `gauge_sts_per_cm`
 - `gauge_rows_per_cm`
-- `eu_size` (34–46)
+- `eu_size` (34–48)
 - `heel_type` (Square/Flap-and-gusset, Round/Heel-turn, Short-row, Strong)
 - `direction` (Toe-up or Cuff-down)
 
@@ -23,24 +23,26 @@ Defaults:
 - `toe_length_cm` = clamp(0.15 * foot_len_cm, min 4.0, max 6.0)
 - `cuff_length_cm` = 5.0 (used when direction is Cuff-down)
 
-## Standard EU Size Table (34–46)
+## Standard EU Size Table (34–48)
 Approximate, average-foot values. Adjust later if you want a specific chart source.
 
 | EU size | Foot length (cm) | Foot circumference (cm) |
 |--------:|-----------------:|------------------------:|
-| 34 | 21.5 | 20.5 |
-| 35 | 22.1 | 21.0 |
-| 36 | 22.8 | 21.5 |
-| 37 | 23.5 | 22.0 |
-| 38 | 24.1 | 22.5 |
-| 39 | 24.8 | 23.0 |
-| 40 | 25.4 | 23.5 |
-| 41 | 26.1 | 24.0 |
-| 42 | 26.8 | 24.5 |
-| 43 | 27.4 | 25.0 |
-| 44 | 28.1 | 25.5 |
-| 45 | 28.8 | 26.0 |
-| 46 | 29.4 | 26.5 |
+| 34 | 22.1 | 20.5 |
+| 35 | 22.8 | 21.0 |
+| 36 | 23.5 | 21.5 |
+| 37 | 24.0 | 22.0 |
+| 38 | 24.5 | 22.5 |
+| 39 | 25.5 | 23.0 |
+| 40 | 26.0 | 23.5 |
+| 41 | 26.5 | 24.0 |
+| 42 | 27.5 | 24.5 |
+| 43 | 28.0 | 25.0 |
+| 44 | 29.0 | 25.5 |
+| 45 | 29.5 | 26.0 |
+| 46 | 30.0 | 26.5 |
+| 47 | 31.0 | 26.5 |
+| 48 | 31.5 | 26.5 |
 
 ## Core Math
 Let:

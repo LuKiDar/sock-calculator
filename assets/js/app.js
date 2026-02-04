@@ -83,14 +83,14 @@ const calculateCore = ({
 	};
 };
 
-const buildHeelDetails = (heelType, sockSts) => {
+const buildHeelDetails = (heelType, sockSts, direction) => {
 	const heelModule = heelById[heelType];
 	if (!heelModule) {
 		return null;
 	}
 	return {
 		title: heelModule.title,
-		...heelModule.buildDetails(sockSts),
+		...heelModule.buildDetails(sockSts, direction),
 	};
 };
 
@@ -208,14 +208,26 @@ const handleCalculate = (event) => {
 	}
 
 	const core = calculateCore(inputs);
-	const heelDetails = buildHeelDetails(inputs.heelType, core.sockSts);
+	const heelDetails = buildHeelDetails(
+		inputs.heelType,
+		core.sockSts,
+		inputs.direction
+	);
 	renderResults(inputs, core, heelDetails);
 };
 
 const handleReset = () => {
 	calculatorForm.reset();
+	if (syncCustomSelects) {
+		syncCustomSelects();
+	}
 	showError("Fill in the form to see results.");
 };
+
+const syncCustomSelects =
+	window.SockSelects && window.SockSelects.initCustomSelects
+		? window.SockSelects.initCustomSelects()
+		: null;
 
 calculatorForm.addEventListener("submit", handleCalculate);
 resetButton.addEventListener("click", handleReset);

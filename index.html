@@ -25,8 +25,13 @@
 
 						<div class="calculator__grid">
 							<div class="field">
-								<label class="field__label" for="euSize">EU size</label>
-								<select class="field__control" id="euSize" name="euSize" required>
+								<label class="field__label" id="euSize-label" for="euSize">EU size</label>
+								<select
+									class="field__control field__control--native"
+									id="euSize"
+									name="euSize"
+									required
+								>
 									<option value="34">34</option>
 									<option value="35">35</option>
 									<option value="36">36</option>
@@ -40,27 +45,92 @@
 									<option value="44">44</option>
 									<option value="45">45</option>
 									<option value="46">46</option>
-									<option value="47">47</option>
-									<option value="48">48</option>
 								</select>
+								<div class="select" data-select>
+									<button
+										class="select__trigger"
+										type="button"
+										aria-haspopup="listbox"
+										aria-expanded="false"
+										aria-labelledby="euSize-label euSize-value"
+									>
+										<span class="select__value" id="euSize-value"></span>
+										<span class="select__icon" aria-hidden="true">▾</span>
+									</button>
+									<ul
+										class="select__list"
+										role="listbox"
+										tabindex="-1"
+										aria-labelledby="euSize-label"
+									></ul>
+								</div>
 							</div>
 
 							<div class="field">
-								<label class="field__label" for="heelType">Heel type</label>
-								<select class="field__control" id="heelType" name="heelType" required>
-									<option value="square" selected>Square / Flap-and-gusset</option>
-									<option value="round">Round / Heel-turn</option>
+								<label class="field__label" id="heelType-label" for="heelType">Heel type</label>
+								<select
+									class="field__control field__control--native"
+									id="heelType"
+									name="heelType"
+									required
+								>
+									<!-- Dutch heel (Square, horseshoe heel)-->
+									<!-- Хорошая громкая пятка -->
+									<!-- Strong heel (fleegle heel) -->
+									<!-- <option value="square">Square / Flap-and-gusset</option> -->
+									<option value="round" selected>Round / Heel-turn</option>
 									<option value="shortRow">Short-row</option>
 									<option value="strong">Strong (reinforced flap)</option>
 								</select>
+								<div class="select" data-select>
+									<button
+										class="select__trigger"
+										type="button"
+										aria-haspopup="listbox"
+										aria-expanded="false"
+										aria-labelledby="heelType-label heelType-value"
+									>
+										<span class="select__value" id="heelType-value"></span>
+										<span class="select__icon" aria-hidden="true">▾</span>
+									</button>
+									<ul
+										class="select__list"
+										role="listbox"
+										tabindex="-1"
+										aria-labelledby="heelType-label"
+									></ul>
+								</div>
 							</div>
 
 							<div class="field">
-								<label class="field__label" for="direction">Knitting direction</label>
-								<select class="field__control" id="direction" name="direction" required>
+								<label class="field__label" id="direction-label" for="direction">Knitting direction</label>
+								<select
+									class="field__control field__control--native"
+									id="direction"
+									name="direction"
+									required
+								>
 									<option value="toeUp">Toe-up</option>
 									<option value="cuffDown" selected>Cuff-down</option>
 								</select>
+								<div class="select" data-select>
+									<button
+										class="select__trigger"
+										type="button"
+										aria-haspopup="listbox"
+										aria-expanded="false"
+										aria-labelledby="direction-label direction-value"
+									>
+										<span class="select__value" id="direction-value"></span>
+										<span class="select__icon" aria-hidden="true">▾</span>
+									</button>
+									<ul
+										class="select__list"
+										role="listbox"
+										tabindex="-1"
+										aria-labelledby="direction-label"
+									></ul>
+								</div>
 							</div>
 
 							<div class="field">
@@ -147,11 +217,12 @@
 			</div>
 		</main>
 
-    <script src="assets/js/data.js"></script>
-    <script src="assets/js/heels/square.js"></script>
-    <script src="assets/js/heels/round.js"></script>
-    <script src="assets/js/heels/short-row.js"></script>
-    <script src="assets/js/heels/strong.js"></script>
-    <script src="assets/js/app.js"></script>
+		<script src="assets/js/data.js"></script>
+		<script src="assets/js/selects.js"></script>
+		<script src="assets/js/heels/square.js"></script>
+		<script src="assets/js/heels/round.js"></script>
+		<script src="assets/js/heels/short-row.js"></script>
+		<script src="assets/js/heels/strong.js"></script>
+		<script src="assets/js/app.js"></script>
 	</body>
 </html>
