@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sock Calculator</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body class="page">
+    <header class="page__header">
+      <div class="page__container">
+        <h1 class="page__title">Sock Calculator</h1>
+        <p class="page__subtitle">
+          Use standard EU sizes 34–46, pick a heel type and direction, and get stitch/row counts.
+        </p>
+      </div>
+    </header>
+
+    <main class="page__main">
+      <div class="page__container">
+        <form class="calculator" id="calculator" novalidate>
+          <section class="calculator__section" aria-labelledby="inputs-heading">
+            <h2 class="calculator__heading" id="inputs-heading">Inputs</h2>
+
+            <div class="calculator__grid">
+              <div class="field">
+                <label class="field__label" for="euSize">EU size</label>
+                <select class="field__control" id="euSize" name="euSize" required>
+                  <option value="34">34</option>
+                  <option value="35">35</option>
+                  <option value="36">36</option>
+                  <option value="37">37</option>
+                  <option value="38">38</option>
+                  <option value="39">39</option>
+                  <option value="40">40</option>
+                  <option value="41" selected>41</option>
+                  <option value="42">42</option>
+                  <option value="43">43</option>
+                  <option value="44">44</option>
+                  <option value="45">45</option>
+                  <option value="46">46</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="heelType">Heel type</label>
+                <select class="field__control" id="heelType" name="heelType" required>
+                  <option value="square" selected>Square / Flap-and-gusset</option>
+                  <option value="round">Round / Heel-turn</option>
+                  <option value="shortRow">Short-row</option>
+                  <option value="strong">Strong (reinforced flap)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="direction">Knitting direction</label>
+                <select class="field__control" id="direction" name="direction" required>
+                  <option value="toeUp">Toe-up</option>
+                  <option value="cuffDown" selected>Cuff-down</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="gaugeSts">Gauge (stitches per cm)</label>
+                <input
+                  class="field__control"
+                  type="number"
+                  id="gaugeSts"
+                  name="gaugeSts"
+                  min="1"
+                  step="0.1"
+                  value="3.0"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="gaugeRows">Gauge (rows per cm)</label>
+                <input
+                  class="field__control"
+                  type="number"
+                  id="gaugeRows"
+                  name="gaugeRows"
+                  min="1"
+                  step="0.1"
+                  value="4.0"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="negativeEase">Negative ease (%)</label>
+                <input
+                  class="field__control"
+                  type="number"
+                  id="negativeEase"
+                  name="negativeEase"
+                  min="0"
+                  max="25"
+                  step="1"
+                  value="10"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="ankleCirc">Ankle circumference (cm, optional)</label>
+                <input
+                  class="field__control"
+                  type="number"
+                  id="ankleCirc"
+                  name="ankleCirc"
+                  min="15"
+                  step="0.1"
+                  placeholder="e.g. 22.0"
+                />
+              </div>
+
+              <div class="field">
+                <label class="field__label" for="legLength">Leg length (cm, optional)</label>
+                <input
+                  class="field__control"
+                  type="number"
+                  id="legLength"
+                  name="legLength"
+                  min="5"
+                  step="0.5"
+                  placeholder="default 15"
+                />
+              </div>
+            </div>
+
+            <div class="calculator__actions">
+              <button class="button" type="submit">Calculate</button>
+              <button class="button button--secondary" type="button" id="resetButton">Reset</button>
+            </div>
+          </section>
+
+          <section class="calculator__section calculator__section--results" aria-labelledby="results-heading">
+            <h2 class="calculator__heading" id="results-heading">Results</h2>
+            <div class="results" id="results" aria-live="polite"></div>
+          </section>
+        </form>
+      </div>
+    </main>
+
+    <footer class="page__footer">
+      <div class="page__container">
+        <p class="page__footer-text">
+          Calculations follow the draft spec. Adjust gauge and ease to match your yarn.
+        </p>
+      </div>
+    </footer>
+
+    <script type="module" src="assets/app.js"></script>
+  </body>
+</html>
