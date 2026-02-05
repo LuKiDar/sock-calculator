@@ -3,6 +3,8 @@
 		const wrappers = Array.from(document.querySelectorAll("[data-select]"));
 
 		const closeAll = (except) => {
+			// console.log('closeAll', except);
+
 			wrappers.forEach((wrapper) => {
 				if (wrapper !== except) {
 					closeSelect(wrapper);
@@ -11,6 +13,8 @@
 		};
 
 		const buildOptions = (wrapper, nativeSelect) => {
+			// console.log('buildOptions', wrapper, nativeSelect);
+
 			const list = wrapper.querySelector(".select__list");
 			list.innerHTML = "";
 
@@ -45,6 +49,9 @@
 		};
 
 		const setSelected = (wrapper, nativeSelect, value) => {
+			// console.log('setSelected', wrapper, nativeSelect, value);
+
+			const previousValue = nativeSelect.value;
 			nativeSelect.value = value;
 			const valueEl = wrapper.querySelector(".select__value");
 			const selectedOption = nativeSelect.options[nativeSelect.selectedIndex];
@@ -55,9 +62,15 @@
 				const isSelected = optionEl.dataset.value === value;
 				optionEl.setAttribute("aria-selected", isSelected ? "true" : "false");
 			});
+
+			if (previousValue !== value) {
+				nativeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+			}
 		};
 
 		const focusOption = (list, index) => {
+			// console.log('focusOption', list, index);
+
 			const options = list.querySelectorAll(".select__option");
 			if (options.length === 0) {
 				return;
@@ -83,6 +96,8 @@
 		};
 
 		const openSelect = (wrapper) => {
+			// console.log('openSelect', wrapper);
+
 			const list = wrapper.querySelector(".select__list");
 			const trigger = wrapper.querySelector(".select__trigger");
 			list.setAttribute("aria-hidden", "false");
@@ -96,6 +111,8 @@
 		};
 
 		const closeSelect = (wrapper) => {
+			// console.log('closeSelect', wrapper);
+
 			const list = wrapper.querySelector(".select__list");
 			const trigger = wrapper.querySelector(".select__trigger");
 			list.setAttribute("aria-hidden", "true");

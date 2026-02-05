@@ -8,6 +8,11 @@ const yarnSelect = document.getElementById("yarn");
 const euSizeSelect = document.getElementById("euSize");
 const heelTypeSelect = document.getElementById("heelType");
 const directionSelect = document.getElementById("direction");
+const gaugeStsInput = document.getElementById("gaugeSts");
+const gaugeRowsInput = document.getElementById("gaugeRows");
+const negativeEaseInput = document.getElementById("negativeEase");
+const ankleCircInput = document.getElementById("ankleCirc");
+const legLengthInput = document.getElementById("legLength");
 
 let DEFAULTS = null;
 let selectDefaults = null;
@@ -24,6 +29,8 @@ const formatNumber = (value, decimals = 1) =>
 const getOptionId = (option) => option.id ?? option.value;
 
 const populateSelectOptions = (select, options = []) => {
+	// console.log('populateSelectOptions', select, options);
+
 	if (!select) {
 		return;
 	}
@@ -36,7 +43,50 @@ const populateSelectOptions = (select, options = []) => {
 	});
 };
 
+const applyYarnGauge = (yarnId) => {
+	console.log('applyYarnGauge', yarnId);
+
+	if (!gaugeStsInput || !gaugeRowsInput) {
+		return;
+	}
+	const yarn = yarnList.find((entry) => entry.id === yarnId);
+	if (!yarn) {
+		return;
+	}
+	if (Number.isFinite(yarn.stsPerCm)) {
+		gaugeStsInput.value = yarn.stsPerCm;
+	}
+	if (Number.isFinite(yarn.rowsPerCm)) {
+		gaugeRowsInput.value = yarn.rowsPerCm;
+	}
+};
+
+const applyDefaultInputs = () => {
+	if (!DEFAULTS) {
+		return;
+	}
+	if (negativeEaseInput) {
+		negativeEaseInput.value = Number.isFinite(DEFAULTS.negativeEase)
+			? String(DEFAULTS.negativeEase * 100)
+			: "";
+	}
+	if (legLengthInput) {
+		legLengthInput.value = Number.isFinite(DEFAULTS.legLengthCm)
+			? String(DEFAULTS.legLengthCm)
+			: "";
+	}
+	if (ankleCircInput) {
+		const ankleDefault =
+			DEFAULTS.ankleCircCm ??
+			DEFAULTS.ankleCirc ??
+			DEFAULTS.ankleCircumference;
+		ankleCircInput.value = Number.isFinite(ankleDefault) ? String(ankleDefault) : "";
+	}
+};
+
 const applySelectDefaults = () => {
+	// console.log('applySelectDefaults', selectDefaults);
+
 	if (!selectDefaults) {
 		return;
 	}
@@ -51,18 +101,26 @@ const applySelectDefaults = () => {
 	}
 	if (yarnSelect && selectDefaults.yarn) {
 		yarnSelect.value = selectDefaults.yarn;
+		applyYarnGauge(selectDefaults.yarn);
 	}
 };
 
 const initializeSelectOptions = () => {
+	// console.log('initializeSelectOptions');
+
 	populateSelectOptions(yarnSelect, yarnList);
 	populateSelectOptions(euSizeSelect, sizeTableList);
 	populateSelectOptions(heelTypeSelect, heelTypeList);
 	populateSelectOptions(directionSelect, directionList);
 	applySelectDefaults();
+	if (yarnSelect && !selectDefaults?.yarn) {
+		applyYarnGauge(yarnSelect.value);
+	}
 };
 
 const getFormValues = () => {
+	// console.log('getFormValues');
+
 	const formData = new FormData(calculatorForm);
 	const euSize = Number(formData.get("euSize"));
 	const gaugeSts = Number(formData.get("gaugeSts"));
@@ -84,6 +142,8 @@ const getFormValues = () => {
 };
 
 const buildHeelDetails = (heelType, sockSts, direction) => {
+	// console.log('buildHeelDetails', heelType, sockSts, direction);
+
 	const heelModule = heelById[heelType];
 	if (!heelModule) {
 		return null;
@@ -95,6 +155,8 @@ const buildHeelDetails = (heelType, sockSts, direction) => {
 };
 
 const buildDirectionSteps = (direction) => {
+	// console.log('buildDirectionSteps', direction);
+
 	if (direction === "toeUp") {
 		return [
 			"Toe increases until full sock stitches",
@@ -116,6 +178,8 @@ const buildDirectionSteps = (direction) => {
 };
 
 const renderResults = (inputs, core, heelDetails) => {
+	// console.log('renderResults', inputs, core, heelDetails);
+
 	const summaryItems = [
 		`Foot length: ${formatNumber(core.footLenCm)} cm`,
 		`Foot circumference: ${formatNumber(core.footCircCm)} cm`,
@@ -178,6 +242,8 @@ const renderResults = (inputs, core, heelDetails) => {
 };
 
 const validateInputs = ({ gaugeSts, gaugeRows, negativeEase }) => {
+	// console.log('validateInputs', gaugeSts, gaugeRows, negativeEase);
+
 	if (!Number.isFinite(gaugeSts) || gaugeSts <= 0) {
 		return "Gauge stitches per cm must be greater than 0.";
 	}
@@ -195,6 +261,8 @@ const showError = (message) => {
 };
 
 const handleCalculate = (event) => {
+	// console.log('handleCalculate', event);
+
 	event.preventDefault();
 	if (!hasBootData()) {
 		showError("Scripts did not load. Please refresh the page.");
@@ -235,8 +303,11 @@ const handleCalculate = (event) => {
 };
 
 const handleReset = () => {
+	// console.log('handleReset');
+
 	calculatorForm.reset();
 	applySelectDefaults();
+	applyDefaultInputs();
 	if (syncCustomSelects) {
 		syncCustomSelects();
 	}
@@ -250,6 +321,8 @@ const hasBootData = () =>
 	Object.keys(heelById).length > 0;
 
 const initApp = (sockData) => {
+	// console.log('initApp', sockData);
+
 	if (!sockData) {
 		showError("Data did not load. Please refresh the page.");
 		return;
@@ -279,6 +352,7 @@ const initApp = (sockData) => {
 		label: entry.label,
 	}));
 
+	applyDefaultInputs();
 	initializeSelectOptions();
 
 	syncCustomSelects =
@@ -291,6 +365,11 @@ const initApp = (sockData) => {
 	if (syncCustomSelects) {
 		syncCustomSelects();
 	}
+	if (yarnSelect) {
+		yarnSelect.addEventListener("change", () => {
+			applyYarnGauge(yarnSelect.value);
+		});
+	}
 
 	showError(
 		hasBootData()
@@ -300,6 +379,8 @@ const initApp = (sockData) => {
 };
 
 const readEmbeddedSockData = () => {
+	// console.log('readEmbeddedSockData');
+
 	const dataEl = document.getElementById("sock-data");
 	if (!dataEl) {
 		return null;
@@ -312,6 +393,8 @@ const readEmbeddedSockData = () => {
 };
 
 const loadSockData = () => {
+	// console.log('loadSockData');
+
 	const embedded = readEmbeddedSockData();
 	if (embedded) {
 		return Promise.resolve(embedded);
@@ -322,5 +405,7 @@ const loadSockData = () => {
 };
 
 loadSockData().then((data) => {
+	// console.log('--------------------------------');
+
 	initApp(data);
 });

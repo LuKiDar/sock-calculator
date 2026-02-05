@@ -187,7 +187,7 @@
 											min="0"
 											max="25"
 											step="1"
-											value="10"
+										placeholder="e.g. 10"
 											required
 										/>
 									</div>
@@ -242,29 +242,29 @@
 		<script type="application/json" id="sock-data">
 			{
 				"DEFAULTS": {
-					"negativeEase": 0.1,
+					"negativeEase": 0.15,
 					"stitchMultiple": 4,
 					"legLengthCm": 15,
 					"cuffLengthCm": 5
 				},
 				"selectDefaults": {
+					"yarn": "4ply",
 					"euSize": "41",
 					"heelType": "round",
-					"direction": "cuffDown",
-					"yarn": "fingering"
+					"direction": "cuffDown"
 				},
 				"yarn": [
 					{
-						"id": "fingering",
+						"id": "4ply",
 						"label": "4-ply / Fingering",
-						"stsPerCm": 3.0,
-						"rowsPerCm": 4.0
+						"stsPerCm": 3.2,
+						"rowsPerCm": 4.4
 					},
 					{
-						"id": "sixPly",
-						"label": "6-ply",
-						"stsPerCm": 2.5,
-						"rowsPerCm": 3.5
+						"id": "6ply",
+						"label": "6-ply / Sport",
+						"stsPerCm": 2.4,
+						"rowsPerCm": 3.4
 					}
 				],
 				"sizeTable": [
