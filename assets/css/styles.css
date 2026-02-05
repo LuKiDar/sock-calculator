@@ -183,6 +183,7 @@ body {
 	color: inherit;
 	font-size: 1rem;
 	cursor: pointer;
+	text-align: left;
 }
 
 .select__trigger:focus-visible {

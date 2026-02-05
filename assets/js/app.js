@@ -1,12 +1,19 @@
-const { DEFAULTS, sizeTable } = window.SockData || {};
 const heelById = window.SockHeels || {};
 
 const calculatorForm = document.getElementById("calculator");
 const resultsContainer = document.getElementById("results");
 const resetButton = document.getElementById("resetButton");
+const euSizeSelect = document.getElementById("euSize");
+const heelTypeSelect = document.getElementById("heelType");
+const directionSelect = document.getElementById("direction");
 
-const hasBootData =
-	Boolean(DEFAULTS) && Boolean(sizeTable) && Object.keys(heelById).length > 0;
+let DEFAULTS = null;
+let selectDefaults = null;
+let sizeTableById = {};
+let sizeTableList = [];
+let heelTypeList = [];
+let directionList = [];
+let syncCustomSelects = null;
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const roundToMultiple = (value, multiple) =>
@@ -15,6 +22,85 @@ const round = (value) => Math.round(value);
 
 const formatNumber = (value, decimals = 1) =>
 	Number.isFinite(value) ? value.toFixed(decimals) : "—";
+
+const getOptionId = (option) => option.id ?? option.value;
+
+const buildLabelMap = (options = []) =>
+	options.reduce((labels, option) => {
+		labels[getOptionId(option)] = option.label;
+		return labels;
+	}, {});
+
+const populateSelectOptions = (select, options = []) => {
+	if (!select) {
+		return;
+	}
+	select.innerHTML = "";
+	options.forEach((option) => {
+		const optionEl = document.createElement("option");
+		optionEl.value = getOptionId(option);
+		optionEl.textContent = option.label;
+		select.appendChild(optionEl);
+	});
+};
+
+const applySelectDefaults = () => {
+	if (!selectDefaults) {
+		return;
+	}
+	if (euSizeSelect && selectDefaults.euSize) {
+		euSizeSelect.value = selectDefaults.euSize;
+	}
+	if (heelTypeSelect && selectDefaults.heelType) {
+		heelTypeSelect.value = selectDefaults.heelType;
+	}
+	if (directionSelect && selectDefaults.direction) {
+		directionSelect.value = selectDefaults.direction;
+	}
+};
+
+const directionLabels = () => buildLabelMap(directionList);
+const allDirectionValues = () => directionList.map((option) => option.id);
+
+const getAllowedDirections = (heelType) => {
+	const heelEntry = heelTypeList.find((option) => option.id === heelType);
+	if (heelEntry && Array.isArray(heelEntry.direction)) {
+		return heelEntry.direction;
+	}
+	return allDirectionValues();
+};
+
+const rebuildDirectionOptions = (heelType) => {
+	if (!directionSelect) {
+		return;
+	}
+	const allowedDirections = getAllowedDirections(heelType);
+	const currentValue = directionSelect.value;
+
+	const labels = directionLabels();
+	Array.from(directionSelect.options).forEach((option) => {
+		const isAllowed = allowedDirections.includes(option.value);
+		option.disabled = !isAllowed;
+		if (!option.textContent) {
+			option.textContent = labels[option.value] || option.value;
+		}
+	});
+
+	const nextValue = allowedDirections.includes(currentValue)
+		? currentValue
+		: allowedDirections[0] || "";
+	if (nextValue) {
+		directionSelect.value = nextValue;
+	}
+};
+
+const initializeSelectOptions = () => {
+	populateSelectOptions(euSizeSelect, sizeTableList);
+	populateSelectOptions(heelTypeSelect, heelTypeList);
+	populateSelectOptions(directionSelect, directionList);
+	applySelectDefaults();
+	rebuildDirectionOptions(heelTypeSelect ? heelTypeSelect.value : "");
+};
 
 const getFormValues = () => {
 	const formData = new FormData(calculatorForm);
@@ -45,7 +131,7 @@ const calculateCore = ({
 	ankleCirc,
 	legLength,
 }) => {
-	const size = sizeTable[euSize];
+	const size = sizeTableById[euSize];
 	const footLenCm = size.footLenCm;
 	const footCircCm = size.footCircCm;
 
@@ -196,7 +282,7 @@ const showError = (message) => {
 
 const handleCalculate = (event) => {
 	event.preventDefault();
-	if (!hasBootData) {
+	if (!hasBootData()) {
 		showError("Scripts did not load. Please refresh the page.");
 		return;
 	}
@@ -218,22 +304,95 @@ const handleCalculate = (event) => {
 
 const handleReset = () => {
 	calculatorForm.reset();
+	applySelectDefaults();
+	rebuildDirectionOptions(heelTypeSelect ? heelTypeSelect.value : "");
 	if (syncCustomSelects) {
 		syncCustomSelects();
 	}
 	showError("Fill in the form to see results.");
 };
 
-const syncCustomSelects =
-	window.SockSelects && window.SockSelects.initCustomSelects
-		? window.SockSelects.initCustomSelects()
-		: null;
+const hasBootData = () =>
+	Boolean(DEFAULTS) &&
+	sizeTableList.length > 0 &&
+	Object.keys(heelById).length > 0;
 
-calculatorForm.addEventListener("submit", handleCalculate);
-resetButton.addEventListener("click", handleReset);
+const initApp = (sockData) => {
+	if (!sockData) {
+		showError("Data did not load. Please refresh the page.");
+		return;
+	}
 
-showError(
-	hasBootData
-		? "Fill in the form to see results."
-		: "Scripts did not load. Please refresh the page."
-);
+	DEFAULTS = sockData.DEFAULTS || null;
+	selectDefaults = sockData.selectDefaults || null;
+	sizeTableById = (sockData.sizeTable || []).reduce((map, entry) => {
+		map[entry.id] = entry;
+		return map;
+	}, {});
+	sizeTableList = (sockData.sizeTable || []).map((entry) => ({
+		id: entry.id,
+		label: entry.label,
+	}));
+	heelTypeList = (sockData.heelType || []).map((entry) => ({
+		id: entry.id,
+		label: entry.label,
+		direction: entry.direction,
+	}));
+	directionList = (sockData.direction || []).map((entry) => ({
+		id: entry.id,
+		label: entry.label,
+	}));
+
+	initializeSelectOptions();
+
+	syncCustomSelects =
+		window.SockSelects && window.SockSelects.initCustomSelects
+			? window.SockSelects.initCustomSelects()
+			: null;
+
+	calculatorForm.addEventListener("submit", handleCalculate);
+	resetButton.addEventListener("click", handleReset);
+	if (heelTypeSelect) {
+		heelTypeSelect.addEventListener("change", () => {
+			rebuildDirectionOptions(heelTypeSelect.value);
+			if (syncCustomSelects) {
+				syncCustomSelects();
+			}
+		});
+		if (syncCustomSelects) {
+			syncCustomSelects();
+		}
+	}
+
+	showError(
+		hasBootData()
+			? "Fill in the form to see results."
+			: "Scripts did not load. Please refresh the page."
+	);
+};
+
+const readEmbeddedSockData = () => {
+	const dataEl = document.getElementById("sock-data");
+	if (!dataEl) {
+		return null;
+	}
+	try {
+		return JSON.parse(dataEl.textContent);
+	} catch (error) {
+		return null;
+	}
+};
+
+const loadSockData = () => {
+	const embedded = readEmbeddedSockData();
+	if (embedded) {
+		return Promise.resolve(embedded);
+	}
+	return fetch("assets/data/sock-data.json")
+		.then((response) => (response.ok ? response.json() : null))
+		.catch(() => null);
+};
+
+loadSockData().then((data) => {
+	initApp(data);
+});

@@ -22,8 +22,15 @@
 				item.dataset.value = option.value;
 				item.textContent = option.textContent;
 				item.setAttribute("aria-selected", option.selected ? "true" : "false");
+				if (option.disabled) {
+					item.classList.add("select__option--disabled");
+					item.setAttribute("aria-disabled", "true");
+				}
 
 				item.addEventListener("click", () => {
+					if (option.disabled) {
+						return;
+					}
 					setSelected(wrapper, nativeSelect, option.value);
 					closeSelect(wrapper);
 					wrapper.querySelector(".select__trigger").focus();
@@ -55,8 +62,24 @@
 			if (options.length === 0) {
 				return;
 			}
-			const nextIndex = Math.max(0, Math.min(index, options.length - 1));
-			options[nextIndex].focus();
+			const boundedIndex = Math.max(0, Math.min(index, options.length - 1));
+			const findEnabledIndex = (startIndex) => {
+				for (let i = startIndex; i < options.length; i += 1) {
+					if (options[i].getAttribute("aria-disabled") !== "true") {
+						return i;
+					}
+				}
+				for (let i = startIndex - 1; i >= 0; i -= 1) {
+					if (options[i].getAttribute("aria-disabled") !== "true") {
+						return i;
+					}
+				}
+				return -1;
+			};
+			const nextIndex = findEnabledIndex(boundedIndex);
+			if (nextIndex >= 0) {
+				options[nextIndex].focus();
+			}
 		};
 
 		const openSelect = (wrapper) => {
@@ -132,7 +155,11 @@
 				if (event.key === "Enter" || event.key === " ") {
 					event.preventDefault();
 					const active = document.activeElement;
-					if (active && active.classList.contains("select__option")) {
+					if (
+						active &&
+						active.classList.contains("select__option") &&
+						active.getAttribute("aria-disabled") !== "true"
+					) {
 						setSelected(wrapper, nativeSelect, active.dataset.value);
 						closeSelect(wrapper);
 						trigger.focus();
