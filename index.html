@@ -12,7 +12,7 @@
 			<div class="page__container">
 				<h1 class="page__title">Sock Calculator</h1>
 				<p class="page__subtitle">
-					Use standard EU sizes 34–46, pick a heel type and direction, and get stitch/row counts.
+					Use standard EU sizes 34–48, pick a heel type and direction, and get stitch/row counts.
 				</p>
 			</div>
 		</header>
@@ -21,7 +21,68 @@
 			<div class="page__container">
 				<form class="calculator" id="calculator" novalidate>
 					<section class="calculator__section" aria-labelledby="inputs-heading">
-						<h2 class="calculator__heading" id="inputs-heading">Inputs</h2>
+						<h2 class="calculator__heading" id="inputs-heading" hidden>Inputs</h2>
+
+						<div class="calculator__grid">
+							<div class="field">
+								<label class="field__label" id="yarn-label" for="yarn">Yarn option</label>
+								<select
+									class="field__control field__control--native"
+									id="yarn"
+									name="yarn"
+									required
+								>
+								</select>
+								<div class="select" data-select>
+									<button
+										class="select__trigger"
+										type="button"
+										aria-haspopup="listbox"
+										aria-expanded="false"
+										aria-labelledby="yarn-label yarn-value"
+									>
+										<span class="select__value" id="yarn-value"></span>
+										<span class="select__icon" aria-hidden="true">▾</span>
+									</button>
+									<ul
+										class="select__list"
+										role="listbox"
+										tabindex="-1"
+										aria-labelledby="yarn-label"
+									></ul>
+								</div>
+							</div>
+
+							<div class="field">
+								<label class="field__label" for="gaugeSts">Gauge (W x H, per cm)</label>
+								<div class="gauge__inputs">
+									<input
+										class="field__control gauge__input"
+										type="number"
+										id="gaugeSts"
+										name="gaugeSts"
+										min="1"
+										step="0.1"
+										value="3.0"
+										required
+										aria-label="Gauge stitches per cm"
+									/>
+									<span class="gauge__text">sts x</span>
+									<input
+										class="field__control gauge__input"
+										type="number"
+										id="gaugeRows"
+										name="gaugeRows"
+										min="1"
+										step="0.1"
+										value="4.0"
+										required
+										aria-label="Gauge rows per cm"
+									/>
+									<span class="gauge__text">rws</span>
+								</div>
+							</div>
+						</div>
 
 						<div class="calculator__grid">
 							<div class="field">
@@ -110,76 +171,59 @@
 									></ul>
 								</div>
 							</div>
-
-							<div class="field">
-								<label class="field__label" for="gaugeSts">Gauge (stitches per cm)</label>
-								<input
-									class="field__control"
-									type="number"
-									id="gaugeSts"
-									name="gaugeSts"
-									min="1"
-									step="0.1"
-									value="3.0"
-									required
-								/>
-							</div>
-
-							<div class="field">
-								<label class="field__label" for="gaugeRows">Gauge (rows per cm)</label>
-								<input
-									class="field__control"
-									type="number"
-									id="gaugeRows"
-									name="gaugeRows"
-									min="1"
-									step="0.1"
-									value="4.0"
-									required
-								/>
-							</div>
-
-							<div class="field">
-								<label class="field__label" for="negativeEase">Negative ease (%)</label>
-								<input
-									class="field__control"
-									type="number"
-									id="negativeEase"
-									name="negativeEase"
-									min="0"
-									max="25"
-									step="1"
-									value="10"
-									required
-								/>
-							</div>
-
-							<div class="field">
-								<label class="field__label" for="ankleCirc">Ankle circumference (cm, optional)</label>
-								<input
-									class="field__control"
-									type="number"
-									id="ankleCirc"
-									name="ankleCirc"
-									min="15"
-									step="0.1"
-									placeholder="e.g. 22.0"
-								/>
-							</div>
-
-							<div class="field">
-								<label class="field__label" for="legLength">Leg length (cm, optional)</label>
-								<input
-									class="field__control"
-									type="number"
-									id="legLength"
-									name="legLength"
-									min="5"
-									step="0.5"
-									placeholder="default 15"
-								/>
-							</div>
 						</div>
+
+						<details class="calculator__accordion">
+							<summary class="calculator__accordion-summary">Advanced</summary>
+							<div class="calculator__accordion-body">
+								<div class="calculator__grid">
+									<div class="field">
+										<label class="field__label" for="negativeEase">Negative ease (%)</label>
+										<input
+											class="field__control"
+											type="number"
+											id="negativeEase"
+											name="negativeEase"
+											min="0"
+											max="25"
+											step="1"
+											value="10"
+											required
+										/>
+									</div>
+
+									<div class="field">
+										<label class="field__label" for="ankleCirc"
+											>Ankle circumference (cm, optional)</label
+										>
+										<input
+											class="field__control"
+											type="number"
+											id="ankleCirc"
+											name="ankleCirc"
+											min="15"
+											step="0.1"
+											placeholder="e.g. 22.0"
+										/>
+									</div>
+
+									<div class="field">
+										<label class="field__label" for="legLength"
+											>Leg length (cm, optional)</label
+										>
+										<input
+											class="field__control"
+											type="number"
+											id="legLength"
+											name="legLength"
+											min="5"
+											step="0.5"
+											placeholder="default 15"
+										/>
+									</div>
+								</div>
+							</div>
+						</details>
 
 						<div class="calculator__actions">
 							<button class="button" type="submit">Calculate</button>
@@ -206,8 +250,23 @@
 				"selectDefaults": {
 					"euSize": "41",
 					"heelType": "round",
-					"direction": "cuffDown"
+					"direction": "cuffDown",
+					"yarn": "fingering"
 				},
+				"yarn": [
+					{
+						"id": "fingering",
+						"label": "4-ply / Fingering",
+						"stsPerCm": 3.0,
+						"rowsPerCm": 4.0
+					},
+					{
+						"id": "sixPly",
+						"label": "6-ply",
+						"stsPerCm": 2.5,
+						"rowsPerCm": 3.5
+					}
+				],
 				"sizeTable": [
 					{
 						"id": "34",
@@ -340,6 +399,7 @@
 			}
 		</script>
 		<script src="assets/js/selects.js"></script>
+		<script src="assets/js/heels/index.js"></script>
 		<script src="assets/js/heels/square.js"></script>
 		<script src="assets/js/heels/round.js"></script>
 		<script src="assets/js/heels/short-row.js"></script>

@@ -1,35 +1,27 @@
 const heelById = window.SockHeels || {};
+const { calculateCore } = window.SockCalculations || {};
 
 const calculatorForm = document.getElementById("calculator");
 const resultsContainer = document.getElementById("results");
 const resetButton = document.getElementById("resetButton");
+const yarnSelect = document.getElementById("yarn");
 const euSizeSelect = document.getElementById("euSize");
 const heelTypeSelect = document.getElementById("heelType");
 const directionSelect = document.getElementById("direction");
 
 let DEFAULTS = null;
 let selectDefaults = null;
+let yarnList = [];
 let sizeTableById = {};
 let sizeTableList = [];
 let heelTypeList = [];
 let directionList = [];
 let syncCustomSelects = null;
 
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-const roundToMultiple = (value, multiple) =>
-	Math.round(value / multiple) * multiple;
-const round = (value) => Math.round(value);
-
 const formatNumber = (value, decimals = 1) =>
 	Number.isFinite(value) ? value.toFixed(decimals) : "—";
 
 const getOptionId = (option) => option.id ?? option.value;
-
-const buildLabelMap = (options = []) =>
-	options.reduce((labels, option) => {
-		labels[getOptionId(option)] = option.label;
-		return labels;
-	}, {});
 
 const populateSelectOptions = (select, options = []) => {
 	if (!select) {
@@ -57,49 +49,17 @@ const applySelectDefaults = () => {
 	if (directionSelect && selectDefaults.direction) {
 		directionSelect.value = selectDefaults.direction;
 	}
-};
-
-const directionLabels = () => buildLabelMap(directionList);
-const allDirectionValues = () => directionList.map((option) => option.id);
-
-const getAllowedDirections = (heelType) => {
-	const heelEntry = heelTypeList.find((option) => option.id === heelType);
-	if (heelEntry && Array.isArray(heelEntry.direction)) {
-		return heelEntry.direction;
-	}
-	return allDirectionValues();
-};
-
-const rebuildDirectionOptions = (heelType) => {
-	if (!directionSelect) {
-		return;
-	}
-	const allowedDirections = getAllowedDirections(heelType);
-	const currentValue = directionSelect.value;
-
-	const labels = directionLabels();
-	Array.from(directionSelect.options).forEach((option) => {
-		const isAllowed = allowedDirections.includes(option.value);
-		option.disabled = !isAllowed;
-		if (!option.textContent) {
-			option.textContent = labels[option.value] || option.value;
-		}
-	});
-
-	const nextValue = allowedDirections.includes(currentValue)
-		? currentValue
-		: allowedDirections[0] || "";
-	if (nextValue) {
-		directionSelect.value = nextValue;
+	if (yarnSelect && selectDefaults.yarn) {
+		yarnSelect.value = selectDefaults.yarn;
 	}
 };
 
 const initializeSelectOptions = () => {
+	populateSelectOptions(yarnSelect, yarnList);
 	populateSelectOptions(euSizeSelect, sizeTableList);
 	populateSelectOptions(heelTypeSelect, heelTypeList);
 	populateSelectOptions(directionSelect, directionList);
 	applySelectDefaults();
-	rebuildDirectionOptions(heelTypeSelect ? heelTypeSelect.value : "");
 };
 
 const getFormValues = () => {
@@ -120,52 +80,6 @@ const getFormValues = () => {
 		negativeEase: negativeEasePercent / 100,
 		ankleCirc: Number.isFinite(ankleCirc) && ankleCirc > 0 ? ankleCirc : null,
 		legLength: Number.isFinite(legLength) && legLength > 0 ? legLength : null,
-	};
-};
-
-const calculateCore = ({
-	euSize,
-	gaugeSts,
-	gaugeRows,
-	negativeEase,
-	ankleCirc,
-	legLength,
-}) => {
-	const size = sizeTableById[euSize];
-	const footLenCm = size.footLenCm;
-	const footCircCm = size.footCircCm;
-
-	const targetCircCm = footCircCm * (1 - negativeEase);
-	const rawSts = targetCircCm * gaugeSts;
-	const sockSts = roundToMultiple(rawSts, DEFAULTS.stitchMultiple);
-
-	const toeLengthCm = clamp(0.15 * footLenCm, 4, 6);
-	const rowsForToe = round(toeLengthCm * gaugeRows);
-	const rowsForFoot = round(footLenCm * gaugeRows);
-	const rowsBeforeToe = Math.max(rowsForFoot - rowsForToe, 0);
-
-	const finalLegLengthCm = legLength ?? DEFAULTS.legLengthCm;
-	const rowsForLeg = round(finalLegLengthCm * gaugeRows);
-	const rowsForCuff = round(DEFAULTS.cuffLengthCm * gaugeRows);
-
-	let ankleSts = null;
-	if (ankleCirc && ankleCirc < footCircCm) {
-		const ankleTargetCm = ankleCirc * (1 - negativeEase);
-		ankleSts = roundToMultiple(ankleTargetCm * gaugeSts, DEFAULTS.stitchMultiple);
-	}
-
-	return {
-		footLenCm,
-		footCircCm,
-		targetCircCm,
-		sockSts,
-		toeLengthCm,
-		rowsForToe,
-		rowsForFoot,
-		rowsBeforeToe,
-		rowsForLeg,
-		rowsForCuff,
-		ankleSts,
 	};
 };
 
@@ -293,7 +207,25 @@ const handleCalculate = (event) => {
 		return;
 	}
 
-	const core = calculateCore(inputs);
+	const size = sizeTableById[inputs.euSize];
+	if (!size) {
+		showError("Selected size is missing data.");
+		return;
+	}
+
+	const core = calculateCore({
+		size,
+		gaugeSts: inputs.gaugeSts,
+		gaugeRows: inputs.gaugeRows,
+		negativeEase: inputs.negativeEase,
+		ankleCirc: inputs.ankleCirc,
+		legLength: inputs.legLength,
+		defaults: DEFAULTS,
+	});
+	if (!core) {
+		showError("Unable to calculate sock details.");
+		return;
+	}
 	const heelDetails = buildHeelDetails(
 		inputs.heelType,
 		core.sockSts,
@@ -305,7 +237,6 @@ const handleCalculate = (event) => {
 const handleReset = () => {
 	calculatorForm.reset();
 	applySelectDefaults();
-	rebuildDirectionOptions(heelTypeSelect ? heelTypeSelect.value : "");
 	if (syncCustomSelects) {
 		syncCustomSelects();
 	}
@@ -315,6 +246,7 @@ const handleReset = () => {
 const hasBootData = () =>
 	Boolean(DEFAULTS) &&
 	sizeTableList.length > 0 &&
+	Boolean(calculateCore) &&
 	Object.keys(heelById).length > 0;
 
 const initApp = (sockData) => {
@@ -325,6 +257,11 @@ const initApp = (sockData) => {
 
 	DEFAULTS = sockData.DEFAULTS || null;
 	selectDefaults = sockData.selectDefaults || null;
+	yarnList = (sockData.yarn || []).map((entry) => ({
+		id: entry.id,
+		label: entry.label,
+		...entry,
+	}));
 	sizeTableById = (sockData.sizeTable || []).reduce((map, entry) => {
 		map[entry.id] = entry;
 		return map;
@@ -336,7 +273,6 @@ const initApp = (sockData) => {
 	heelTypeList = (sockData.heelType || []).map((entry) => ({
 		id: entry.id,
 		label: entry.label,
-		direction: entry.direction,
 	}));
 	directionList = (sockData.direction || []).map((entry) => ({
 		id: entry.id,
@@ -352,16 +288,8 @@ const initApp = (sockData) => {
 
 	calculatorForm.addEventListener("submit", handleCalculate);
 	resetButton.addEventListener("click", handleReset);
-	if (heelTypeSelect) {
-		heelTypeSelect.addEventListener("change", () => {
-			rebuildDirectionOptions(heelTypeSelect.value);
-			if (syncCustomSelects) {
-				syncCustomSelects();
-			}
-		});
-		if (syncCustomSelects) {
-			syncCustomSelects();
-		}
+	if (syncCustomSelects) {
+		syncCustomSelects();
 	}
 
 	showError(
