@@ -44,7 +44,7 @@ const populateSelectOptions = (select, options = []) => {
 };
 
 const applyYarnGauge = (yarnId) => {
-	console.log('applyYarnGauge', yarnId);
+	// console.log('applyYarnGauge', yarnId);
 
 	if (!gaugeStsInput || !gaugeRowsInput) {
 		return;
@@ -62,6 +62,8 @@ const applyYarnGauge = (yarnId) => {
 };
 
 const applyDefaultInputs = () => {
+	// console.log('applyDefaultInputs');
+
 	if (!DEFAULTS) {
 		return;
 	}
@@ -217,7 +219,7 @@ const renderResults = (inputs, core, heelDetails) => {
 
 	resultsContainer.innerHTML = `
 		<div class="results__summary">
-			<strong>Summary</strong>
+			<h3 class="results__summary-title">Summary</h3>
 			<ul class="results__list">
 				${summaryItems.map((item) => `<li>${item}</li>`).join("")}
 			</ul>
